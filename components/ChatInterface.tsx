@@ -212,7 +212,6 @@ export default function ChatInterface({ userId }: { userId: string }) {
               key={m.id}
               message={m}
               showAvatar={i === 0 || messages[i - 1]?.sender_type !== m.sender_type}
-              isLast={i === messages.length - 1}
             />
           ))}
 
@@ -368,11 +367,9 @@ function TypingIndicator() {
 function MessageBubble({
   message,
   showAvatar,
-  isLast,
 }: {
   message: Message
   showAvatar: boolean
-  isLast: boolean
 }) {
   const isAi = message.sender_type === 'ai'
   const isTemp = message.id.startsWith('temp-')
