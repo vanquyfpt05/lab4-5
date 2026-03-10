@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, LogIn, UserPlus, LogOut, Package } from "lucide-react";
+import { ShoppingCart, LogIn, UserPlus, LogOut, Package, Bot } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -40,13 +40,16 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Nav Links (desktop) */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
           <Link href="/" className="hover:text-foreground transition-colors">
             Trang Chủ
           </Link>
           <Link href="/#products" className="hover:text-foreground transition-colors">
             Sản Phẩm
+          </Link>
+          <Link href="/chat" className="hover:text-foreground transition-colors flex items-center gap-1.5">
+            <Bot className="h-4 w-4 text-cyan-600" />
+            Hỗ Trợ AI
           </Link>
         </div>
 

@@ -1,14 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductList } from "@/components/ProductList";
 import { SlidersHorizontal } from "lucide-react";
-
-const CATEGORIES = ["Tất Cả", "Âm Thanh", "Phụ Kiện", "Gaming", "Màn Hình", "Wearables"];
+import { supabase } from "@/lib/supabaseClient";
 
 export function CategoryFilter() {
   const [activeCategory, setActiveCategory] = useState("Tất Cả");
   const [sortBy, setSortBy] = useState("default");
+  const [categories, setCategories] = useState<string[]>(["Tất Cả"]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      const { data, error } = await supabase
+        .from("products")
+        .select("category");
+      
+      if (!error && data) {
+        const uniqueCategories = Array.from(new Set(data.map(i => i.category)));
+        setCategories(["Tất Cả", ...uniqueCategories]);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   return (
     <div id="products">
@@ -16,7 +30,7 @@ export function CategoryFilter() {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Category Tabs */}
         <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}

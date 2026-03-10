@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description: "A modern e-commerce application",
 };
 
+import { FloatingChatButton } from "@/components/FloatingChatButton";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,6 +41,7 @@ export default function RootLayout({
               <main className="flex-1">
                 {children}
               </main>
+              <FloatingChatButton />
               <Footer />
             </div>
           </CartProvider>

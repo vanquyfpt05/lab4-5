@@ -1,12 +1,10 @@
-"use client";
-
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Star, Heart, CheckCircle, Zap, Loader2 } from "lucide-react";
 import { Product, useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 
 // Extended interface for display purposes
@@ -14,88 +12,9 @@ interface ProductDisplay extends Product {
   category: string;
   rating: number;
   reviews: number;
-  isNew?: boolean;
-  isSale?: boolean;
+  is_new?: boolean;
+  is_sale?: boolean;
 }
-
-const products: ProductDisplay[] = [
-  {
-    id: 1,
-    name: "Tai Nghe Không Dây",
-    price: 4990000,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
-    category: "Âm Thanh",
-    rating: 4.8,
-    reviews: 124,
-    isNew: true,
-  },
-  {
-    id: 2,
-    name: "Bàn Phím Cơ",
-    price: 3490000,
-    image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500&q=80",
-    category: "Phụ Kiện",
-    rating: 4.9,
-    reviews: 85,
-    isSale: true,
-  },
-  {
-    id: 3,
-    name: "Chuột Gaming",
-    price: 1890000,
-    image: "https://images.unsplash.com/photo-1527814050087-3793815479db?w=500&q=80",
-    category: "Gaming",
-    rating: 4.7,
-    reviews: 200,
-  },
-  {
-    id: 4,
-    name: "Màn Hình 4K",
-    price: 9990000,
-    image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500&q=80",
-    category: "Màn Hình",
-    rating: 4.6,
-    reviews: 56,
-  },
-  {
-    id: 5,
-    name: "Đồng Hồ Thông Minh",
-    price: 5990000,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80",
-    category: "Wearables",
-    rating: 4.7,
-    reviews: 89,
-    isNew: true,
-  },
-  {
-    id: 6,
-    name: "Webcam HD 1080p",
-    price: 1290000,
-    image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=500&q=80",
-    category: "Phụ Kiện",
-    rating: 4.5,
-    reviews: 42,
-  },
-  {
-    id: 7,
-    name: "Đế Tản Nhiệt Laptop",
-    price: 590000,
-    image: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=500&q=80",
-    category: "Phụ Kiện",
-    rating: 4.6,
-    reviews: 156,
-    isSale: true,
-  },
-  {
-    id: 8,
-    name: "Micro Thu Âm USB",
-    price: 2490000,
-    image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=500&q=80",
-    category: "Âm Thanh",
-    rating: 4.8,
-    reviews: 73,
-  },
-];
 
 interface ProductListProps {
   activeCategory?: string;
@@ -106,9 +25,26 @@ export function ProductList({ activeCategory = "Tất Cả", sortBy = "default" 
   const router = useRouter();
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const [products, setProducts] = useState<ProductDisplay[]>([]);
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
   const [wishlist, setWishlist] = useState<Set<number>>(new Set());
   const [buyingId, setBuyingId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+      
+      if (error) {
+        console.error("Error fetching products:", error);
+      } else {
+        setProducts(data || []);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleBuyNow = async (product: ProductDisplay) => {
     if (!user) {
@@ -201,14 +137,14 @@ export function ProductList({ activeCategory = "Tất Cả", sortBy = "default" 
             {/* Image Container */}
             <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
               {/* Badges */}
-              {(product.isNew || product.isSale) && (
+              {(product.is_new || product.is_sale) && (
                 <div className="absolute left-2 top-2 z-10 flex gap-1">
-                  {product.isNew && (
+                  {product.is_new && (
                     <span className="rounded-md bg-blue-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
                       Mới
                     </span>
                   )}
-                  {product.isSale && (
+                  {product.is_sale && (
                     <span className="rounded-md bg-red-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
                       Giảm Giá
                     </span>
@@ -268,9 +204,9 @@ export function ProductList({ activeCategory = "Tất Cả", sortBy = "default" 
                     currency: "VND",
                   })}
                 </span>
-                {product.isSale && (
+                {product.is_sale && (
                   <span className="text-xs text-muted-foreground line-through">
-                    {(product.price * 1.25).toLocaleString("vi-VN", {
+                    {(Number(product.price) * 1.25).toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     })}
